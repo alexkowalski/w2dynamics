@@ -190,6 +190,7 @@ sdr_max_iter          = integer(min=0, default=500)
 bath_fit_method       = option('adapol', 'bfgs', 'sdr', 'sdr_bfgs', default='sdr_bfgs')
 initial_bath          = force_list(default=None)  # nbath energies, nbath * nflavors V; nflavors runs faster, nbath is determined automatically and would override npoles
 assume_spin_symmetry  = boolean(default=False)
+write_hamiltonian     = option("final", "always", "never", default="never")
 
 # sector inclusion
 autorange_miniter     = integer(min=0, default=4)

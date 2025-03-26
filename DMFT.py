@@ -451,6 +451,8 @@ if cfg["QMC"]["ReuseMCConfig"] != 0:
 
 # DMFT loop
 for iter_no in range(total_iterations + 1):
+    total_iter_no = iter_no
+    solver_kwargs = {}
     # figure out type of iteration
     iter_time1=time.time()
     if solver.abort:
@@ -510,6 +512,20 @@ for iter_no in range(total_iterations + 1):
         dmft_step.gloc2fiw()
         dmft_step.write_imp_problems(output)
 
+    if ((cfg["General"]["solver"] != "CI"
+         and cfg["CI"]["write_hamiltonian"] == 'always')
+        or (cfg["CI"]["write_hamiltonian"] != 'never' and iter_type == "finish")):
+        for iimp, imp_problem in enumerate(dmft_step.imp_problems):
+            def fit_bath_and_write_quanty_hamiltonian():
+                cisolver = CISolver(cfg, Nseed, Uw, Uw_Mat, epsn, not use_mpi, mpi_comm)
+                cisolver.set_problem(imp_problem)
+                return cisolver.solve(total_iter_no,
+                                      write_ham=f"hamiltonian_{total_iter_no}_{iimp}",
+                                      only_write_ham=True)
+
+            result = mpi_on_root(fit_bath_and_write_quanty_hamiltonian)
+            output.write_impurity_result(iimp, result.other)
+
     # The finish iteration is just there to get the final chemical
     # potential, lattice quantities and hybridization. No more QMC run
     # is performed, so we stop here.
@@ -530,6 +546,10 @@ for iter_no in range(total_iterations + 1):
                 cfg["QMC"]["Nwarmups"] = cfg["QMC"]["Nwarmups2Plus"]
 
         for iimp, imp_problem in enumerate(dmft_step.imp_problems):
+            if (cfg["General"]["solver"] == "CI"
+                and cfg["CI"]["write_hamiltonian"] == 'always'):
+                solver_kwargs["write_ham"] = f"hamiltonian_{total_iter_no}_{iimp}"
+
             log("Solving impurity problem no. %d ...", iimp+1)
             solver.set_problem(imp_problem, cfg["QMC"]["FourPnt"])
             if cfg["QMC"]["ReuseMCConfig"] != 0:
@@ -537,13 +557,13 @@ for iter_no in range(total_iterations + 1):
                     mccfgcontainer = [mccfgs.pop(0)]
                 else:
                     mccfgcontainer = []
-                result = solver.solve(iter_no, mccfgcontainer)
+                result = solver.solve(iter_no, mccfgcontainer, **solver_kwargs)
                 result_worm = None
                 mccfgs.append(mccfgcontainer[0])
             elif cfg['QMC']['WormMeasGiw'] != 0 or cfg['QMC']['WormMeasGSigmaiw'] != 0 or cfg['QMC']['WormMeasQQ'] != 0:
                 result, result_worm = solver.solve_worm(iter_no, log_function=log)
             else:
-                result = solver.solve(iter_no)
+                result = solver.solve(iter_no, **solver_kwargs)
                 result_worm = None
             result.postprocessing(siw_method, smom_method)
             giws.append(result.giw.mean())

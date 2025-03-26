@@ -453,6 +453,23 @@ class _QuantyObject:
     def clear(self):
         _qm().destroy_var(self)
 
+    def write_quanty_file(self, dir, varname=None):
+        if varname is None:
+            return _qm().run_command(
+                f"io.put('{dir}', '{{}}')\n",
+                self
+            )
+        else:
+            tempname = "pytempvar1" if varname.strip() != "pytempvar1" else "pytempvar2"
+            return _qm().run_command(
+                f"{tempname} = {varname}\n"
+                f"{varname} = {{}}\n"
+                f"io.put('{dir}', '{varname}')\n"
+                f"{varname} = {tempname}\n"
+                f"{tempname} = nil\n",
+                self
+            )
+
     def __del__(self):
         try:
             self.clear()

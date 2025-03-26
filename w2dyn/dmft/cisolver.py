@@ -67,11 +67,9 @@ class CISolver(ImpuritySolver):
                              self.problem.nflavours, self.problem.nflavours,
                              self.problem.nflavours, self.problem.nflavours)
 
-    def solve(self, iter_no, step_cache=None):
+    def solve(self, iter_no, step_cache=None, write_ham=False, only_write_ham=False):
         sys.stdout.flush()
         sys.stderr.flush()
-        if self.mpi_comm is not None:
-            self.mpi_comm.Barrier()
 
         def log(*args, **kwargs):
             print(time.strftime("%y-%m-%d %H:%M:%S"), *args, **kwargs)
@@ -256,6 +254,16 @@ class CISolver(ImpuritySolver):
         nbathst = nf - self.problem.nflavours
         log(f"Number of fermionic single-particle states: {nf}")
         log(f"Of which bath states: {nbathst}")
+
+        if write_ham:
+            log(f"Writing Hamiltonian to file: {write_ham}")
+            H.write_quanty_file(".", write_ham)
+            if only_write_ham:
+                result = StatisticalImpurityResult(self.problem,
+                                                   None, None, None,
+                                                   self.g_diagonal_only,
+                                                   **result)
+                return result
 
         # DETERMINE GROUND STATE BY NNCI DIAGONALIZATION
         if self.config["CI"]["fillspins"] is None:
