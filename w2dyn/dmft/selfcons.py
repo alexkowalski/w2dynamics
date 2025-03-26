@@ -504,6 +504,7 @@ class DMFTStep:
         output.write_quantity("g0iw-full", g0iw)
         output.write_quantity("g0iw", g0iw)
         output.write_quantity("fiw", [p.fiw for p in self.imp_problems])
+        output.write_quantity("fiw-full", [p.fiw for p in self.imp_problems])
         output.write_quantity("fmom", [p.fmom for p in self.imp_problems])
         output.write_quantity("ftau", [p.ftau for p in self.imp_problems])
         output.write_quantity("ftau-full", [p.ftau for p in self.imp_problems])

@@ -22,6 +22,7 @@ from w2dyn.auxiliaries import config
 from w2dyn.auxiliaries.utilities import diagonal_covariance
 
 from w2dyn.dmft import impurity
+from w2dyn.dmft.cisolver import CISolver
 from w2dyn.dmft import lattice
 from w2dyn.dmft import atoms
 from w2dyn.dmft import interaction
@@ -264,7 +265,12 @@ cfg["QMC"]["FTType"]=cfg["General"]["FTType"]
 Uw = cfg["General"]["Uw"]
 Uw_Mat = cfg["General"]["Uw_Mat"]
 
-solver = impurity.CtHybSolver(cfg, Nseed, Uw, Uw_Mat, epsn, not use_mpi, mpi_comm)
+if cfg["General"]["solver"] == "CTHYB":
+    solver = impurity.CtHybSolver(cfg, Nseed, Uw, Uw_Mat, epsn, not use_mpi, mpi_comm)
+elif cfg["General"]["solver"] == "CI":
+    solver = CISolver(cfg, Nseed, Uw, Uw_Mat, epsn, not use_mpi, mpi_comm)
+else:
+    raise ValueError("Invalid option provided for General.solver")
 #if use_mpi:
 #    log("Using MPI-enabled solver")
 #    solver = mpi.MPIStatisticalSolver(solver)

@@ -15,7 +15,6 @@ import numpy as np
 import scipy.optimize as opt
 import sys
 
-from w2dyn.auxiliaries.CTQMC import mctqmc as ctqmc
 import w2dyn.auxiliaries.transform as tf
 import w2dyn.auxiliaries.postprocessing as postproc
 import w2dyn.auxiliaries.compound_index as ci
@@ -26,6 +25,12 @@ import w2dyn.dmft.dynamicalU as dynamicalU
 # import copy
 
 import w2dyn.dmft.orbspin as orbspin
+
+try:
+    from w2dyn.auxiliaries.CTQMC import mctqmc as ctqmc
+except:
+    pass
+
 
 # deprecated function time.clock removed in python >= 3.8
 if not hasattr(time, 'clock'):

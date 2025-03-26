@@ -211,7 +211,9 @@ class HdfOutput:
         ax = hf.create_group(".axes")
         beta = config["General"]["beta"]
         qcfg = config["QMC"]
+        cicfg = config["CI"]
         ax.create_dataset("iw", data=_tf.matfreq(beta, "fermi", 2*qcfg["Niw"]))
+        ax.create_dataset("realw", data=np.linspace(cicfg["minrealw"], cicfg["maxrealw"], cicfg["Nrealw"]))
         ax.create_dataset("pos-iw", data=_tf.matfreq(beta, "fermi", 2*qcfg["Niw"])[qcfg["Niw"]:])
         ax.create_dataset("tau", data=np.linspace(0, beta, qcfg["Ntau"]))
         ax.create_dataset("tauf", data=np.linspace(0, beta, qcfg["Nftau"]))

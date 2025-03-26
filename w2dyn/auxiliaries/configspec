@@ -179,6 +179,54 @@ Percentage4OperatorMove = float(min=0,max=1,default=0.000)     # percentage of g
 
 MeasSsquare           = integer(default=0)                  # write S^2; note that due to planned changes this parameter may become unnecessary and be removed in a future version
 
+[CI]
+# bath fitting
+npoles                = integer(min=1, default=10)
+epsbathfit            = float(default=1e-7)            # sdr: terminate if difference below this parameter for a few steps
+epsbatheigval         = float(default=0)               # sdr: truncate X eigenvalues below this parameter
+niw_fit               = integer(min=3, default=None)
+sdr_min_iter          = integer(min=0, default=100)
+sdr_max_iter          = integer(min=0, default=500)
+bath_fit_method       = option('adapol', 'bfgs', 'sdr', 'sdr_bfgs', default='sdr_bfgs')
+initial_bath          = force_list(default=None)  # nbath energies, nbath * nflavors V; nflavors runs faster, nbath is determined automatically and would override npoles
+assume_spin_symmetry  = boolean(default=False)
+
+# sector inclusion
+autorange_miniter     = integer(min=0, default=4)
+autorange_maxdim      = integer(min=0, default=20000)
+autorange_cutoff      = float(min=0, default=None)
+fillspins             = force_list(default=None)
+check_fillspins       = force_list(default=None)
+
+# ground state solution
+strategy              = option('simple', 'nn_old', 'nn_experimental', default='nn_old')
+wfgs_step_cutoff      = float(min=0.0, default=None)
+wfgs_final_cutoff     = float(min=0.0, default=None)
+wfgs_step_maxnstates  = integer(min=1, default=None)
+wfgs_final_maxnstates = integer(min=1, default=None)
+full_steps            = integer(min=0, default=8)
+maxsize_full_steps    = integer(min=0, default=200000)
+truncsize_full_steps  = integer(min=0, default=None)
+nn_pool_minsize       = integer(min=0, default=100000)
+nn_amounts_add        = force_list(default=list(0.5, 0.5, 0.5, 0.5, 0.5))            # between 0 and 1 relative, otherwise absolute as integer
+nn_amounts_prediag    = force_list(default=list(0.15, 0.15, 0.15, 0.15, 0.15))         # between 0 and 1 relative, otherwise absolute as integer
+nn_maxlim_add         = force_list(default=list(100000, 100000, 100000, 100000, 100000))   # between 0 and 1 relative, otherwise absolute as integer
+nn_maxlim_prediag     = force_list(default=list(50000, 50000, 50000, 50000, 50000))      # between 0 and 1 relative, otherwise absolute as integer
+nn_take_by            = option('cutoff', 'amount', default='cutoff')
+nn_target             = option('categorical', 'logcoeff', default='logcoeff')
+nn_arch               = option('dense', 'dense_outer', 'cnn', 'e_cnn_added', 'e_cnn_pooled', 'cnn_outer', 'transformer', 'rnn', default='dense')
+nn_max_epochs         = integer(min=1, default=500)
+
+
+# result calculation
+ntri                  = integer(min=1, default=50)
+tri_internal_cutoff   = float(min=0, default=1e-8)
+tri_internal_maxbasis = integer(min=1, default=None)
+imag_eta              = float(default=0.02)
+Nrealw                = integer(min=1, default=5000)
+minrealw              = float(default=-20)
+maxrealw              = float(default=20)
+
 #this section contains all other parameters
 [General]
 #DOS flat/semicirc/ReadIn/Bethe/Bethe_in_tau
@@ -189,6 +237,7 @@ muimpFile       = string(default=None)          # filename of the muimp file
 nanostructure   = string(default=None)          # filename of the H_k file
 EPSEQ           = float(default=1e-6)           # epsilon for identical atom in unit cell
 equiv           = force_list(default=None)
+solver          = option('CTHYB', 'CI', default='CTHYB')  # impurity solver
 
 # Include GW Self-Energy
 GW              = integer(default=0)

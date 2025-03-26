@@ -19,6 +19,7 @@ from w2dyn.auxiliaries import input as aux_input
 from w2dyn.auxiliaries.utilities import diagonal_covariance
 
 from w2dyn.dmft import impurity
+from w2dyn.dmft.cisolver import CISolver
 from w2dyn.dmft import orbspin
 from w2dyn.dmft import worm
 
@@ -141,7 +142,13 @@ paramag = cfg["General"]["magnetism"] == "para"
 # Initialise solver
 log("Initialising solver ...")
 Nseed = cfg["QMC"]["NSeed"] + mpi_rank
-solver = impurity.CtHybSolver(cfg, Nseed, 0,0,0, not use_mpi, mpi_comm)
+
+if cfg["General"]["solver"] == "CTHYB":
+    solver = impurity.CtHybSolver(cfg, Nseed, 0,0,0, not use_mpi, mpi_comm)
+elif cfg["General"]["solver"] == "CI":
+    solver = CISolver(cfg, Nseed, 0,0,0, not use_mpi, mpi_comm)
+else:
+    raise ValueError("Invalid option provided for General.solver")
 
 #FIXME: hack
 cfg["QMC"]["FTType"]=cfg["General"]["FTType"]
@@ -240,6 +247,7 @@ for iter_no in range(stat_iterations+worm_iterations):
 
     log("Writing impurity problem ...")
     output.write_quantity("fiw",   [fiw])
+    output.write_quantity("fiw-full", [fiw])
     #output.write_quantity("fmom",  [fmom])
     output.write_quantity("ftau",  [ftau])
     output.write_quantity("ftau-full",  [ftau])
